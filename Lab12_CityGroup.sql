@@ -199,7 +199,14 @@ INNER JOIN dbo.Project ON Project.ProjectID = Group12.ProjectID
 
 --8
 -- Khi trường EndDate được cập nhật thì tự động tính toán tổng thời gian hoàn thành dự án và cập nhật vào trường Period
-
+CREATE TRIGGER UpdateEnddate
+ON  Project
+FOR UPDATE  
+AS 
+      BEGIN 
+	      UPDATE dbo.Project SET PeriodP = DATEDIFF (MONTH , StartDate , EndDate )
+	  END 
+GO
 
 --Đảm bảo rằng khi xóa một Group thì tất cả những bản ghi có liên quan trong bảng GroupDetail cũng sẽ bị xóa theo.
 CREATE TRIGGER DeleteGroup
@@ -217,7 +224,7 @@ ON Group12
 FOR INSERT
 AS 
     BEGIN 
-      IF EXISTS(SELECT * FROM inserted WHERE Inserted.GroupName != Group12.GroupName)  -- kiểm tra 
+      IF EXISTS(SELECT * FROM inserted WHERE Inserted.GroupName = GroupName)  -- kiểm tra 
 	  BEGIN 
 	      PRINT 'Ten nhom bi trung'
 		  ROLLBACK TRANSACTION -- hoàn trả dữ liệu --> qua trở lại ban đầu 
